@@ -1826,20 +1826,36 @@ body.modal-open {
    Ye hamesha style.css ke SABSE NEECHE rahe
 ================================= */
 
+.cover-collage {
+  justify-content: center;
+}
+
+/* max-width 163px = 9:16 ka size. Isse chaura nahi hoga,
+   to YouTube thumbnail ki dhundli side patti kabhi nahi dikhegi */
 .cover-collage img {
+  position: static;          /* purana .project-image img rule inhe stack kar raha tha */
+  inset: auto;
+  z-index: auto;
   flex: 1 1 0;
   min-width: 0;
+  max-width: 163px;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   background: #000;
   display: block;
   pointer-events: none;
+}
+
+.project-card:hover .project-image .cover-collage img {
+  transform: none;           /* hover par collage khud zoom hota hai */
 }
 
 .gallery-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
   pointer-events: none;
 }
@@ -1848,7 +1864,14 @@ iframe.gallery-player {
   border: 1.5px solid var(--line);
 }
 
-@media (max-width: 600px) {
+/* computer par player bada = YouTube zyada HD quality chunta hai */
+@media (min-width: 761px) {
+  iframe.gallery-player {
+    height: min(76vh, 680px);
+  }
+}
+
+@media (max-width: 900px) {
   .cover-collage img:nth-child(n+4) {
     display: none;
   }

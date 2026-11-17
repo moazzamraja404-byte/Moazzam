@@ -225,7 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.setAttribute("aria-label", "Play video " + (n + 1));
 
         const img = document.createElement("img");
-        img.src = "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+               img.src = "https://i.ytimg.com/vi/" + id + "/maxresdefault.jpg";
+        img.onerror = () => {                       // maxres na mile to chhoti photo
+          img.onerror = null;
+          img.src = "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+        };
         img.alt = "";
 
         const num = document.createElement("span");
