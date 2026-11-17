@@ -1820,3 +1820,36 @@ body.modal-open {
     right: 4%;
   }
 }
+
+/* =================================
+   YOUTUBE VERSION (thumbnails + player)
+   Ye hamesha style.css ke SABSE NEECHE rahe
+================================= */
+
+.cover-collage img {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  display: block;
+  pointer-events: none;
+}
+
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+iframe.gallery-player {
+  border: 1.5px solid var(--line);
+}
+
+@media (max-width: 600px) {
+  .cover-collage img:nth-child(n+4) {
+    display: none;
+  }
+}

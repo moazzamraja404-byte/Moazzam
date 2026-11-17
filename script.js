@@ -155,24 +155,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* =================================
-     PROJECT GALLERY (card par click -> videos popup me)
+    /* =================================
+     PROJECT GALLERY (card par click -> YouTube videos popup me)
   ================================= */
 
   const modal = document.getElementById("galleryModal");
 
   if (modal) {
     const panel = modal.querySelector(".gallery-panel");
-    const player = document.getElementById("galleryPlayer");
     const titleEl = document.getElementById("galleryTitle");
     const subEl = document.getElementById("gallerySub");
     const countEl = document.getElementById("galleryCount");
     const listEl = document.getElementById("galleryList");
     const closeBtn = modal.querySelector(".gallery-close");
 
+    // purane <video> player ki jagah YouTube ka <iframe> player lagao
+    const oldPlayer = document.getElementById("galleryPlayer");
+    const player = document.createElement("iframe");
+    player.id = "galleryPlayer";
+    player.className = "gallery-player";
+    player.title = "Video player";
+    player.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture; fullscreen");
+    player.setAttribute("allowfullscreen", "");
+    player.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+    oldPlayer.replaceWith(player);
+
     let lastCard = null;
     let items = [];
     let index = 0;
+
+    function embedUrl(id, autoplay) {
+      return "https://www.youtube-nocookie.com/embed/" + id +
+        "?rel=0&playsinline=1&modestbranding=1" + (autoplay ? "&autoplay=1" : "");
+    }
 
     function setRatio(ratio) {
       const parts = ratio.split("/").map(Number);
@@ -184,11 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function select(i, autoplay) {
       index = (i + items.length) % items.length;
-            player.src = items[index] + (autoplay ? "" : "#t=0.1");
-      if (autoplay) {
-        const p = player.play();
-        if (p && p.catch) p.catch(() => {});
-      }
+      player.src = embedUrl(items[index], autoplay);
       countEl.textContent = "Video " + (index + 1) + " of " + items.length;
       listEl.querySelectorAll(".gallery-thumb").forEach((btn, n) => {
         btn.classList.toggle("active", n === index);
@@ -197,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openGallery(card) {
-      items = (card.dataset.videos || "")
+      items = (card.dataset.yt || "")
         .split(",").map(s => s.trim()).filter(Boolean);
       if (!items.length) return;
 
@@ -207,23 +218,21 @@ document.addEventListener("DOMContentLoaded", () => {
       setRatio(card.dataset.ratio || "9/16");
 
       listEl.innerHTML = "";
-      items.forEach((src, n) => {
+      items.forEach((id, n) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "gallery-thumb";
         btn.setAttribute("aria-label", "Play video " + (n + 1));
 
-        const v = document.createElement("video");
-        v.src = src + "#t=0.5";
-        v.muted = true;
-        v.playsInline = true;
-        v.preload = "metadata";
+        const img = document.createElement("img");
+        img.src = "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+        img.alt = "";
 
         const num = document.createElement("span");
         num.textContent = String(n + 1).padStart(2, "0");
 
-        btn.append(v, num);
-        btn.addEventListener("click", () => select(n, true));
+        btn.append(img, num);
+        btn.addEventListener("click", () => select(n, true));   // thumbnail par tap -> chalega
         listEl.appendChild(btn);
       });
 
@@ -231,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("modal-open");
 
-            select(0, false);         // popup khulne par video nahi chalega, tap karne par chalega
+      select(0, false);          // popup khulne par video nahi chalega, tap karne par chalega
       closeBtn.focus();
     }
 
@@ -240,9 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
       modal.setAttribute("aria-hidden", "true");
       document.body.classList.remove("modal-open");
 
-      player.pause();
-      player.removeAttribute("src");
-      player.load();
+      player.src = "about:blank";   // video band ho jayega
       listEl.innerHTML = "";
 
       if (lastCard) lastCard.focus();
@@ -266,24 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("keydown", (e) => {
       if (!modal.classList.contains("open")) return;
-
-      if (e.key === "Escape") {
-        closeGallery();
-        return;
-      }
-
-      if (e.key === "Tab") {
-        const focusable = Array.from(modal.querySelectorAll("button, video[controls]"));
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
+      if (e.key === "Escape") closeGallery();
     });
   }
 
